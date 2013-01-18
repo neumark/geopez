@@ -11,11 +11,11 @@ class photoMetaData:
         f = open(fileName,'r')
         tags = EXIF.process_file(f)
         f.close()
-        import pdb; 
-        self.lat=47.507081#tags['GPS GPSLatitude']
-        self.lon=19.045688#tags['GPS GPSLongitude']
-        self.time=tags['GPS GPSTimeStamp']
-        
+
+        self.lat = tags['GPS GPSLatitude'].values[0].num+(float(tags['GPS GPSLatitude'].values[1].num)/tags['GPS GPSLatitude'].values[1].den)/60        
+        self.lon = tags['GPS GPSLongitude'].values[0].num+(float(tags['GPS GPSLongitude'].values[1].num)/tags['GPS GPSLongitude'].values[1].den)/60        
+        self.time=tags['EXIF DateTimeOriginal']
+
     def updateCoord(self, coord):
         self.coord=coord
 
