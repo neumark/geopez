@@ -7,7 +7,8 @@ def read_xml(filename) :
     tree = ET.fromstring(data)
     return tree
 
-def add_image(filename,position)
+def add_image(filename,position):
+    pass
 
 def write_xml(tree,filename=None) :
     if filename :
