@@ -18,8 +18,8 @@ class photoMetaData:
         self.lon = tags['GPS GPSLongitude'].values[0].num+(float(tags['GPS GPSLongitude'].values[1].num)/tags['GPS GPSLongitude'].values[1].den)/60        
         self.time=tags['EXIF DateTimeOriginal']
 
-        self.width = int(tags['EXIF ExifImageWidth'])
-        self.height = int(tags['EXIF ExifImageLength'])
+        self.width = int(str(tags['EXIF ExifImageWidth']))
+        self.height = int(str(tags['EXIF ExifImageLength']))
 
     def updateCoord(self, coord):
         self.coord=coord

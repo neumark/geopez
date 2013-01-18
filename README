@@ -1,5 +1,28 @@
 GeoPez
 
+It takes a set of geotagged images and a downloaded prezi.
+It adds the images, positioning them according to the geolocations.
+It also adds a static google maps image that covers the locations.
+
+
+-----
+
+Installation
+
+You need numpy and PIL for this. On a mac this worked:
+
+pip intall numpy
+pip install --no-index -f http://dist.plone.org/thirdparty/ -U PIL
+
+On windows machines it didn't.
+
+The included EXIF.py code is taken from
+https://github.com/ianare/exif-py
+It also has weird problems under windows.
+
+
+-----
+
 How to run this thing?
 
 First put a starting prezi under ../examples/emptyprezi
@@ -18,3 +41,4 @@ open ../examples/emptyprezi/Prezi.app
 If we want to try it again, we copy the original xml back.
 (We don't deal with the images because they don't cause any trouble)
 cp ../examples/emptyprezi.original/content/data/content.xml ../examples/emptyprezi/content/data/content.xml
+
