@@ -13,10 +13,10 @@ class photoMetaData:
         f = open(fileName,'r')
         tags = EXIF.process_file(f)
         f.close()
-        self.lat =tags['GPS GPSLatitude']
-        self.lon =tags['GPS GPSLongitude']
-        self.time=tags['GPS GPSTimeStamp']
-        
+        self.lat = tags['GPS GPSLatitude'].values[0].num+(float(tags['GPS GPSLatitude'].values[1].num)/tags['GPS GPSLatitude'].values[1].den)/60        
+        self.lon = tags['GPS GPSLongitude'].values[0].num+(float(tags['GPS GPSLongitude'].values[1].num)/tags['GPS GPSLongitude'].values[1].den)/60        
+        self.time=tags['EXIF DateTimeOriginal']
+
     def updateCoord(self, coord):
         self.coord=coord
 
@@ -46,8 +46,6 @@ def main():
     tree = read_xml(xmlFilename)
     objects = tree.findall("zui-table/object")
     sys.stderr.write("Orig num of objs: %d\n" % len(objects))
-    # TODO copy and rename photos to proper location /repo/
-
 
     photoData = [photoMetaData(name) for name in sys.argv[2:]]
 
