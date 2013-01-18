@@ -1,7 +1,18 @@
 import sys
 import EXIF
-
 from process_xml import *
+
+class photoMetaData:
+	def __init__(fileName):
+		self.id=fileName
+		f = open(imgFilename,'r')
+		tags = EXIF.process_file(f)
+		f.close()
+		self.lat=tags['GPS GPSLatitude']
+		self.long=tags['GPS GPSLongitude']
+		self.time=tags['GPS GPSTimeStamp']
+	def updateCoord(coord):
+		self.coord=coord
 
 def add_image(tree,meta,bb):
     add_image_to_xml(tree,meta)
@@ -9,10 +20,7 @@ def add_image(tree,meta,bb):
 
 # Mocks so far.
 def image_data(imgFilename):
-    f = open(imgFilename,'r')
-    tags = EXIF.process_file(f)
-
-    return tags['GPS GPSLatitude'],tags['GPS GPSLongitude'],tags['GPS GPSTimeStamp']
+    
         
     
 def bounding_box(imageData):
@@ -26,11 +34,12 @@ def main():
     objects = tree.findall("zui-table/object")
     sys.stderr.write("Orig num of objs: %d\n" % len(objects))
 
-    imageData = []
-    for imgFilename in sys.argv[2:] :
-	meta = image_data(imgFilename)
-	lat,lon,time = meta
-	imageData.append([imgFilename]+list(meta))
+    photoData = [photoMetaData(name) for name in sys.argv[2:]]
+	urlList=mapUrls(photoData)
+	blankMap_contents = urllib2.urlopen(urlList[0]).read()
+	for url,photo in zip(urlList[1:],photoData):
+		markerMap_contents=urllib2.urlopen(url).read()
+		photo.updateCoord(pixelCoord(blankMap_contents,markerMap_contents))
 
     print imageData
 
