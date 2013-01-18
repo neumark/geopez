@@ -2,12 +2,14 @@ import sys
 import EXIF
 import urllib2
 import map_urls
+import shutil
 import findMarker
 from process_xml import *
 
 class photoMetaData:
     def __init__(self, fileName):
-        self.id=fileName
+        self.fileName=fileName
+        self.id = None
         f = open(fileName,'r')
         tags = EXIF.process_file(f)
         f.close()
@@ -19,6 +21,16 @@ class photoMetaData:
     def updateCoord(self, coord):
         self.coord=coord
 
+def transfer_photos(photoData,preziDirectory) :
+    repoDir = preziDirectory+"/data/repo/"
+    for i,photo in enumerate(photoData) :
+        extension = photo.fileName.split(".")[-1]
+        newId = str(i+1)
+        newFilename = repoDir+newId+"."+extension
+        shutil.copyfile(photo.fileName,newFilename)
+        photo.fileName = newFilename
+        photo.id = newId
+
 def add_image(tree,meta,bb):
     add_image_to_xml(tree,meta)
     return tree
@@ -28,14 +40,18 @@ def bounding_box(imageData):
 
 def main():
     assert len(sys.argv)>=3
-    xmlFilename = sys.argv[1]
 
+    preziDirectory = sys.argv[1]
+    
+    xmlFilename = preziDirectory+"/data/content.xml"
     tree = read_xml(xmlFilename)
     objects = tree.findall("zui-table/object")
     sys.stderr.write("Orig num of objs: %d\n" % len(objects))
-    # TODO copy and rename photos to proper location /repo/
 
     photoData = [photoMetaData(name) for name in sys.argv[2:]]
+
+    transfer_photos(photoData,preziDirectory)
+
     urlList=map_urls.map_urls(photoData)
     blankMap_contents = urllib2.urlopen(urlList[0]).read()
     blankMap_file = open('blank.png','w')
@@ -52,21 +68,21 @@ def main():
         photo.updateCoord(findMarker.pixelCoord('blank.png',photo.id + '_marker.png'))
 
     for photo in photoData:
-        print photo.coord
+        sys.stderr.write(str(photo.coord)+"\n")
 
-    # bb = bounding_box(imageData)
+    # b = bounding_box(imageData)
 
-    # oidPrefix="111000"
-    # for i,meta in enumerate(imageData) :
-    #     canvasX = 1973.0 # somehow transformed from lat,lon,bb and the canvas bb.
-    #     canvasY = 1977.0
-    #     oid = oidPrefix+str(i+1)
-    #     add_image_to_xml(tree,meta,canvasX,canvasY,oid)
+    oidPrefix="111000"
+    for photo in reversed(photoData) :
+        imgFilename = photo.fileName
+        x,y = photo.coord
+        canvasX,canvasY = x,y # Later we will want to transform from map pixel coordsystem to prezi world coordsystem.
+        add_image_to_xml(tree,photo.id,imgFilename,canvasX,canvasY)
 
-    # write_xml(tree)
+    write_xml(tree)
 
-    # objects = tree.findall("zui-table/object")
-    # sys.stderr.write("Orig num of objs: %d\n" % len(objects))
+    objects = tree.findall("zui-table/object")
+    sys.stderr.write("Updated num of objs: %d\n" % len(objects))
 
 if __name__ == "__main__":
     main()
