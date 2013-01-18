@@ -39,8 +39,3 @@ if(__name__ == "__main__"):
 	image_lat_lons = [(47.507081, 19.045688), (47.504664, 19.050357)]
 
 	print maps(image_lat_lons)
-# For saving downloaded maps:
-	# image_contents = urllib2.urlopen(map_url(city)).read()
-	# image_file = open(sys.argv[1] + 'blank_map.png', 'w')
-	# image_file.write(image_contents)
-	# image_file.close()
