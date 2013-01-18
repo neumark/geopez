@@ -4,6 +4,7 @@ import urllib2
 import map_urls
 import shutil
 import findMarker
+import os
 from process_xml import *
 
 class photoMetaData:
@@ -66,6 +67,7 @@ def main():
         markerMap_file.close()
 
         photo.updateCoord(findMarker.pixelCoord(blankMap_filename,photo.id + '_marker.png'))
+        os.remove(photo.id + '_marker.png')
 
     for photo in photoData:
         sys.stderr.write(str(photo.coord)+"\n")
