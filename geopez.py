@@ -72,7 +72,7 @@ def main():
 
     # b = bounding_box(imageData)
 
-    add_image_to_xml(tree,"0",blankMap_filename,0.0,0.0,5.0)
+    add_image_to_xml(tree,"0",blankMap_filename,320.0,320.0,5.0)
 
     for photo in reversed(photoData) :
         imgFilename = photo.fileName

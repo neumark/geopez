@@ -1,1 +1,20 @@
 GeoPez
+
+How to run this thing?
+
+First put a starting prezi under ../examples/emptyprezi
+../examples/emptyprezi/content/data/content.xml
+should be there if you do it right.
+
+Make a copy so that you can revert to it later:
+cp -r ../examples/emptyprezi ../examples/emptyprezi.original
+
+Suppose the geotagged pics are in the pics/ directory.
+
+python geopez.py ../examples/emptyprezi "pics/2012-11-29 19.48.08.jpg" "pics/2012-12-30 10.49.44.jpg" "pics/2012-12-31 11.03.40.jpg" > foo
+mv foo ../examples/emptyprezi/content/data/content.xml
+open ../examples/emptyprezi/Prezi.app
+
+If we want to try it again, we copy the original xml back.
+(We don't deal with the images because they don't cause any trouble)
+cp ../examples/emptyprezi.original/content/data/content.xml ../examples/emptyprezi/content/data/content.xml
