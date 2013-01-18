@@ -13,15 +13,15 @@ class photoMetaData:
         f = open(fileName,'r')
         tags = EXIF.process_file(f)
         f.close()
-        self.lat=47.507081#tags['GPS GPSLatitude']
-        self.lon=19.045688#tags['GPS GPSLongitude']
+        self.lat =tags['GPS GPSLatitude']
+        self.lon =tags['GPS GPSLongitude']
         self.time=tags['GPS GPSTimeStamp']
         
     def updateCoord(self, coord):
         self.coord=coord
 
 def transfer_photos(photoData,preziDirectory) :
-    repoDir = preziDirectory+"/data/repo/"
+    repoDir = preziDirectory+"/content/data/repo/"
     for i,photo in enumerate(photoData) :
         extension = photo.fileName.split(".")[-1]
         newId = str(i+1)
@@ -42,7 +42,7 @@ def main():
 
     preziDirectory = sys.argv[1]
     
-    xmlFilename = preziDirectory+"/data/content.xml"
+    xmlFilename = preziDirectory+"/content/data/content.xml"
     tree = read_xml(xmlFilename)
     objects = tree.findall("zui-table/object")
     sys.stderr.write("Orig num of objs: %d\n" % len(objects))
