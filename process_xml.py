@@ -8,4 +8,6 @@ def read_xml(filename) :
     return tree
 
 def write_xml(tree,filename) :
-    raise "unimplemented"
+    f = file(filename,"w")
+    f.write(ET.tostring(tree))
+    f.close()
