@@ -11,6 +11,7 @@ class photoMetaData:
         f = open(fileName,'r')
         tags = EXIF.process_file(f)
         f.close()
+        import pdb; 
         self.lat=47.507081#tags['GPS GPSLatitude']
         self.lon=19.045688#tags['GPS GPSLongitude']
         self.time=tags['GPS GPSTimeStamp']
@@ -32,15 +33,26 @@ def main():
     tree = read_xml(xmlFilename)
     objects = tree.findall("zui-table/object")
     sys.stderr.write("Orig num of objs: %d\n" % len(objects))
+    # TODO copy and rename photos to proper location /repo/
 
     photoData = [photoMetaData(name) for name in sys.argv[2:]]
     urlList=map_urls.map_urls(photoData)
-    blankMap_contents = urllib2.urlopen(urlList[0])
-    for url,photo in zip(urlList[1:],photoData):
-        markerMap_contents=urllib2.urlopen(url)
-        photo.updateCoord(findMarker.pixelCoord(blankMap_contents,markerMap_contents))
+    blankMap_contents = urllib2.urlopen(urlList[0]).read()
+    blankMap_file = open('blank.png','w')
+    blankMap_file.write(blankMap_contents)
+    blankMap_file.close()
 
-    print imageData
+    for url,photo in zip(urlList[1:],photoData):
+        markerMap_contents=urllib2.urlopen(url).read()
+
+        markerMap_file = open(photo.id + '_marker.png','w')
+        markerMap_file.write(markerMap_contents)
+        markerMap_file.close()
+
+        photo.updateCoord(findMarker.pixelCoord('blank.png',photo.id + '_marker.png'))
+
+    for photo in photoData:
+        print photo.coord
 
     bb = bounding_box(imageData)
 
@@ -56,4 +68,5 @@ def main():
     objects = tree.findall("zui-table/object")
     sys.stderr.write("Orig num of objs: %d\n" % len(objects))
 
-main()
+if __name__ == "__main__":
+    main()
