@@ -28,13 +28,16 @@ def prezi_bounding_box(tree) :
        ymax = 100.
     return (xmin,ymin,xmax,ymax)
 
+def imgId2oid(imgId) :
+    return "111000"+imgId
+
 def add_image_to_xml(tree,imgId,imgFilename,canvasX,canvasY,scale) :
     main = tree.findall("zui-table")
     assert len(main)==1
     main = main[0]
     pixelWidth = 320 # Mock, later comes from meta
     pixelHeight = 200
-    oid = "111000"+imgId
+    oid = imgId2oid(imgId)
     o = ET.Element('object', {'id':oid, 'x':str(canvasX), 'y':str(canvasY), 'r':'0', 'type':'image', 's':str(scale)} )
     s = ET.Element('source', {'h':str(pixelHeight) ,'w':str(pixelWidth)} )
     s.text = imgFilename.split("/")[-1]
@@ -47,6 +50,20 @@ def add_image_to_xml(tree,imgId,imgFilename,canvasX,canvasY,scale) :
     o.append(r)
     main.append(o)
     return tree
+
+def add_to_path(tree,photoData) :
+    path = tree.findall("path")
+    assert len(path)<=1
+    if len(path)==0 :
+        path = ET.Element('path')
+        tree.append(path)
+        path = tree.findall("path")
+        assert len(path)==1
+    path = path[0]
+    for photo in photoData :
+        oid = imgId2oid(photo.id)
+        p = ET.XML("<s><eagle o=\"%s\"/></s>" % oid )
+        path.append(p)
 
 def write_xml(tree,filename=None) :
     if filename :

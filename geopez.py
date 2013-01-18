@@ -18,6 +18,9 @@ class photoMetaData:
         self.lon = tags['GPS GPSLongitude'].values[0].num+(float(tags['GPS GPSLongitude'].values[1].num)/tags['GPS GPSLongitude'].values[1].den)/60        
         self.time=tags['EXIF DateTimeOriginal']
 
+        self.width = int(tags['EXIF ExifImageWidth'])
+        self.height = int(tags['EXIF ExifImageLength'])
+
     def updateCoord(self, coord):
         self.coord=coord
 
@@ -72,15 +75,20 @@ def main():
     for photo in photoData:
         sys.stderr.write(str(photo.coord)+"\n")
 
-    # b = bounding_box(imageData)
+    canvasBoundingBox = prezi_bounding_box(tree)
 
     add_image_to_xml(tree,"0",blankMap_filename,320.0,320.0,5.0)
 
-    for photo in reversed(photoData) :
+    # !!!
+    photoData.reverse()
+    
+    for photo in photoData :
         imgFilename = photo.fileName
         x,y = photo.coord
         canvasX,canvasY = x,y # Later we will want to transform from map pixel coordsystem to prezi world coordsystem.
         add_image_to_xml(tree,photo.id,imgFilename,canvasX,canvasY,1.0)
+
+    add_to_path(tree,photoData)
 
     write_xml(tree)
 
