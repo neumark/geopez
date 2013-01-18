@@ -3,8 +3,10 @@ import EXIF
 import urllib2
 import map_urls
 import shutil
+import scale
 import findMarker
 import os
+
 from process_xml import *
 
 class photoMetaData:
@@ -70,24 +72,29 @@ def main():
         markerMap_file.close()
 
         photo.updateCoord(findMarker.pixelCoord(blankMap_filename,photo.id + '_marker.png'))
-        os.remove(photo.id + '_marker.png')
+        # os.remove(photo.id + '_marker.png')
 
     for photo in photoData:
         sys.stderr.write(str(photo.coord)+"\n")
 
     canvasBoundingBox = prezi_bounding_box(tree)
 
-    add_image_to_xml(tree,"0",blankMap_filename,320.0,320.0,5.0)
+    scale.calcScale(photoData)
+
+    add_image_to_xml(tree,"0",blankMap_filename, 320.0, 320.0, 1.0, pixelWidth=640, pixelHeight=640, rot=0.0 )
 
     # !!!
     photoData.reverse()
     
     for photo in photoData :
         imgFilename = photo.fileName
-        x,y = photo.coord
+        # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! We transpose, and we don't even know why it is necessary.
+        y,x = photo.coord
         canvasX,canvasY = x,y # Later we will want to transform from map pixel coordsystem to prezi world coordsystem.
-        add_image_to_xml(tree,photo.id,imgFilename,canvasX,canvasY,1.0)
-
+        rot = random.gauss(0.0, 2.0)
+        add_image_to_xml(tree,photo.id,imgFilename, canvasX, canvasY,
+                         photo.scale, pixelWidth=photo.width, pixelHeight=photo.height,rot=rot)
+        # '''0.05/photo.height*640'''
     add_to_path(tree,photoData)
 
     write_xml(tree)

@@ -7,6 +7,6 @@ def calcScale(photos):
         minDist=inf
         for j,photo2 in enumerate(photos):
             if i==j: continue
-            minDist=min(sum((photo1.coord-photo2.coord)**2),minDist)
+            minDist=min(sqrt(sum((photo1.coord-photo2.coord)**2)),minDist)
         origRad=sqrt(photo1.width**2+photo1.height**2)
-        photo1.scale=minDist/origRad
+        photo1.scale = min(minDist,128)/float(photo1.height)
