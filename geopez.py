@@ -53,7 +53,8 @@ def main():
 
     urlList=map_urls.map_urls(photoData)
     blankMap_contents = urllib2.urlopen(urlList[0]).read()
-    blankMap_file = open('blank.png','w')
+    blankMap_filename = preziDirectory+'/content/data/repo/0.png'
+    blankMap_file = open(blankMap_filename,'w')
     blankMap_file.write(blankMap_contents)
     blankMap_file.close()
 
@@ -64,19 +65,20 @@ def main():
         markerMap_file.write(markerMap_contents)
         markerMap_file.close()
 
-        photo.updateCoord(findMarker.pixelCoord('blank.png',photo.id + '_marker.png'))
+        photo.updateCoord(findMarker.pixelCoord(blankMap_filename,photo.id + '_marker.png'))
 
     for photo in photoData:
         sys.stderr.write(str(photo.coord)+"\n")
 
     # b = bounding_box(imageData)
 
-    oidPrefix="111000"
+    add_image_to_xml(tree,"0",blankMap_filename,0.0,0.0,5.0)
+
     for photo in reversed(photoData) :
         imgFilename = photo.fileName
         x,y = photo.coord
         canvasX,canvasY = x,y # Later we will want to transform from map pixel coordsystem to prezi world coordsystem.
-        add_image_to_xml(tree,photo.id,imgFilename,canvasX,canvasY)
+        add_image_to_xml(tree,photo.id,imgFilename,canvasX,canvasY,1.0)
 
     write_xml(tree)
 

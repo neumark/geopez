@@ -7,14 +7,35 @@ def read_xml(filename) :
     tree = ET.fromstring(data)
     return tree
 
-def add_image_to_xml(tree,imgId,imgFilename,canvasX,canvasY) :
+def prezi_bounding_box(tree) :
+    objects = tree.findall("zui-table/object")
+    xs = []
+    ys = []
+    for o in objects :
+        x = float(o.get('x'))
+        y = float(o.get('y'))
+        xs.append(x)
+        ys.append(y)
+    if len(objects)>=2 :
+        xmin = min(xs)
+        xmax = max(xs)
+        ymin = min(ys)
+        ymax = max(ys)
+    else :
+       xmin = 0.
+       xmax = 100.
+       ymin = 0.
+       ymax = 100.
+    return (xmin,ymin,xmax,ymax)
+
+def add_image_to_xml(tree,imgId,imgFilename,canvasX,canvasY,scale) :
     main = tree.findall("zui-table")
     assert len(main)==1
     main = main[0]
     pixelWidth = 320 # Mock, later comes from meta
     pixelHeight = 200
     oid = "111000"+imgId
-    o = ET.Element('object', {'id':oid, 'x':str(canvasX), 'y':str(canvasY), 'r':'0', 'type':'image', 's':'1.0'} )
+    o = ET.Element('object', {'id':oid, 'x':str(canvasX), 'y':str(canvasY), 'r':'0', 'type':'image', 's':str(scale)} )
     s = ET.Element('source', {'h':str(pixelHeight) ,'w':str(pixelWidth)} )
     s.text = imgFilename.split("/")[-1]
     u = ET.Element('url')
