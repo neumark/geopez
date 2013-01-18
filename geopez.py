@@ -34,7 +34,7 @@ def main():
         canvasX = 1973.0 # somehow transformed from lat,lon,bb and the canvas bb.
         canvasY = 1977.0
         oid = oidPrefix+str(i+1)
-        add_image_to_xml(tree,meta,canvasX,canvasY,oid)
+        add_image_to_xml(tree,meta,canvasX,canvasY,oid,"jpg")
 
     write_xml(tree)
 

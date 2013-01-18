@@ -17,11 +17,12 @@ def add_image_to_xml(tree,meta,canvasX,canvasY,oid,extension) :
     s = ET.Element('source', {'h':str(pixelHeight) ,'w':str(pixelWidth)} )
     s.text = oid+"."+extension
     u = ET.Element('url')
-
     u.text = s.text
-    r = ET.Element('resource')
+
+    r = ET.XML("<resource><id>%s</id></resource>" % oid)
     s.append(u)
     o.append(s)
+    o.append(r)
     main.append(o)
     return tree
 
