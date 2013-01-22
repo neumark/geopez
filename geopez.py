@@ -6,6 +6,7 @@ import shutil
 import scale
 import findMarker
 import os
+import shutil
 
 from process_xml import *
 
@@ -13,11 +14,17 @@ class photoMetaData:
     def __init__(self, fileName):
         self.fileName=fileName
         self.id = None
-        f = open(fileName,'r')
+        f = open(fileName,'rb')
         tags = EXIF.process_file(f)
         f.close()
-        self.lat = tags['GPS GPSLatitude'].values[0].num+(float(tags['GPS GPSLatitude'].values[1].num)/tags['GPS GPSLatitude'].values[1].den)/60        
-        self.lon = tags['GPS GPSLongitude'].values[0].num+(float(tags['GPS GPSLongitude'].values[1].num)/tags['GPS GPSLongitude'].values[1].den)/60        
+        gps=[]
+        #import pdb; pdb.set_trace()
+        for key in ['GPS GPSLatitude','GPS GPSLongitude']:
+            sum=0
+            for i,coeff in enumerate([1.,1./60,1./360]):
+                sum+=coeff*(float(tags[key].values[i].num)/tags[key].values[i].den)
+            gps.append(sum)
+        self.lat,self.lon = gps[0],gps[1]
         self.time=tags['EXIF DateTimeOriginal']
 
         self.width = int(str(tags['EXIF ExifImageWidth']))
@@ -44,30 +51,37 @@ def bounding_box(imageData):
     return (0.0,0.0,1.0,1.0)
 
 def main():
-    assert len(sys.argv)>=3
-
-    preziDirectory = sys.argv[1]
+    assert len(sys.argv)==4
+    shutil.rmtree(sys.argv[2],True)
+    shutil.copytree(sys.argv[1],sys.argv[2])
+    preziDirectory = sys.argv[2]
     
     xmlFilename = preziDirectory+"/content/data/content.xml"
     tree = read_xml(xmlFilename)
     objects = tree.findall("zui-table/object")
     sys.stderr.write("Orig num of objs: %d\n" % len(objects))
 
-    photoData = [photoMetaData(name) for name in sys.argv[2:]]
-
+    photoData=[]
+    for name in os.listdir(sys.argv[3]):
+        try:
+            photoData.append(photoMetaData(os.path.join(sys.argv[3],name)))
+        except:
+            print name+" skipped"
+            continue
+    
     transfer_photos(photoData,preziDirectory)
 
     urlList=map_urls.map_urls(photoData)
     blankMap_contents = urllib2.urlopen(urlList[0]).read()
     blankMap_filename = preziDirectory+'/content/data/repo/0.png'
-    blankMap_file = open(blankMap_filename,'w')
+    blankMap_file = open(blankMap_filename,'wb')
     blankMap_file.write(blankMap_contents)
     blankMap_file.close()
 
     for url,photo in zip(urlList[1:],photoData):
         markerMap_contents=urllib2.urlopen(url).read()
 
-        markerMap_file = open(photo.id + '_marker.png','w')
+        markerMap_file = open(photo.id + '_marker.png','wb')
         markerMap_file.write(markerMap_contents)
         markerMap_file.close()
 
@@ -97,7 +111,7 @@ def main():
         # '''0.05/photo.height*640'''
     add_to_path(tree,photoData)
 
-    write_xml(tree)
+    write_xml(tree,xmlFilename)
 
     objects = tree.findall("zui-table/object")
     sys.stderr.write("Updated num of objs: %d\n" % len(objects))

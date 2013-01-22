@@ -4,8 +4,10 @@ import xml.etree.cElementTree as ET
 import random
 
 def read_xml(filename) :
-    data = file(filename).read()
+    f=open(filename)
+    data = f.read()
     tree = ET.fromstring(data)
+    f.close()
     return tree
 
 def prezi_bounding_box(tree) :
